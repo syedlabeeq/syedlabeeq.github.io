@@ -1,0 +1,179 @@
+---
+layout: post
+title: Kali Linux 2020.1 tty1 ERROR
+date: "2020-02-21T18:30:00.003+05:00"
+author: Najam Ul Saqib
+tags:
+  - troubleshooting
+  - kalilinux
+  - GNU
+modified_time: "2021-02-03T13:41:03.098+05:00"
+thumbnail: https://1.bp.blogspot.com/-FfFf0VQ-GZM/XqlDmK0wSlI/AAAAAAAAbIo/-6_io51fSJoL42pTtY3xG-pukkyVzvpegCLcBGAsYHQ/s72-c/maxresdefault.jpg
+blogger_id: tag:blogger.com,1999:blog-1950785263016881513.post-6574185698461767543
+blogger_orig_url: https://najum98.blogspot.com/2020/02/kali-linux-20201-tty1-error.html
+comments: true
+---
+
+<div dir="ltr" style="text-align: left" trbidi="on">
+  <img
+    src="https://1.bp.blogspot.com/-FfFf0VQ-GZM/XqlDmK0wSlI/AAAAAAAAbIo/-6_io51fSJoL42pTtY3xG-pukkyVzvpegCLcBGAsYHQ/s320/maxresdefault.jpg"
+    style="display: none"
+  /><br />
+  <div dir="ltr" style="text-align: left" trbidi="on">
+    <div class="separator" style="clear: both; text-align: center"></div>
+    I found a horrible error when I installed the latest version of Kali Linux
+    on one of my machines, after installing the OS when I started it, it booted
+    into a black screen which asked for my login credentials without any GUI.<br />
+    <div class="separator" style="clear: both; text-align: center">
+      <a
+        href="https://1.bp.blogspot.com/-uUz9xwuK2oE/Xk_WWG2MOuI/AAAAAAAAZK4/qpXFEbzRgiQo7nQwu2hSPAOhkTdJJc0eQCLcBGAsYHQ/s1600/1.PNG"
+        style="margin-left: 1em; margin-right: 1em"
+        ><img
+          border="0"
+          data-original-height="553"
+          data-original-width="955"
+          height="369"
+          src="https://1.bp.blogspot.com/-uUz9xwuK2oE/Xk_WWG2MOuI/AAAAAAAAZK4/qpXFEbzRgiQo7nQwu2hSPAOhkTdJJc0eQCLcBGAsYHQ/s640/1.PNG"
+          width="640"
+      /></a>
+    </div>
+    <div class="separator" style="clear: both; text-align: center">
+      It is heartbreaking to see problems right away in a freshly installed
+      operating system but after some Googling, I dug out the solution which I
+      will share with you here.&nbsp;
+    </div>
+    <div class="separator" style="clear: both; text-align: center"><br /></div>
+    <div class="separator" style="clear: both; text-align: center">
+      <b><u>Steps to solve No GUI tty1 Error in Kali Linux</u></b>
+    </div>
+    <div class="separator" style="clear: both; text-align: left"></div>
+    <div>
+      <u><br /></u>
+    </div>
+    <div>
+      <u><br /></u>
+    </div>
+    <div>1. First log in with your user credentials</div>
+    <div>2. Write command:&nbsp;<b>cd /</b></div>
+    <div>3. Write command: <b>cd etc/</b></div>
+    <div>4. Write command: <b>cd apt/</b></div>
+    <div>5. Write command: <b>cat sources.list</b></div>
+    <div><br /></div>
+    <div>
+      After step 5, you will see something like this:<br />
+      <div class="separator" style="clear: both; text-align: center">
+        <a
+          href="https://1.bp.blogspot.com/-RS5-4XsNjkI/Xk_Yb_lXkLI/AAAAAAAAZLE/d21Kj7UFcTUtXHlh9MbsAM4UHxuuAu1AQCLcBGAsYHQ/s1600/2.PNG"
+          style="margin-left: 1em; margin-right: 1em"
+          ><img
+            border="0"
+            data-original-height="297"
+            data-original-width="1018"
+            height="186"
+            src="https://1.bp.blogspot.com/-RS5-4XsNjkI/Xk_Yb_lXkLI/AAAAAAAAZLE/d21Kj7UFcTUtXHlh9MbsAM4UHxuuAu1AQCLcBGAsYHQ/s640/2.PNG"
+            width="640"
+        /></a>
+      </div>
+      <div class="separator" style="clear: both; text-align: left">
+        As you can see, no repositories are mentioned here so obviously we'll
+        have to add kali official repositories to this file.&nbsp;
+      </div>
+      <div class="separator" style="clear: both; text-align: left">
+        6. Write command: <b>sudo nano sources.list</b>
+      </div>
+      <div class="separator" style="clear: both; text-align: left">
+        7. Write your password
+      </div>
+      <div class="separator" style="clear: both; text-align: left">
+        8. Now add the following repositories at the end of the editable file
+        which is opened on the terminal:
+      </div>
+      <div class="separator" style="clear: both; text-align: center">
+        <span
+          style="
+            background-color: #1d1f21;
+            color: #c5c8c6;
+            font-family: , 'menlo', 'monaco', 'consolas', 'liberation mono',
+              'courier new', monospace;
+            font-size: 14.875px;
+            text-align: left;
+            white-space: pre;
+          "
+          >deb http://http.kali.org/kali kali-rolling main non-free
+          contrib</span
+        >
+      </div>
+      <div class="separator" style="clear: both; text-align: center">
+        <span
+          style="
+            background-color: #1d1f21;
+            color: #c5c8c6;
+            font-family: , 'menlo', 'monaco', 'consolas', 'liberation mono',
+              'courier new', monospace;
+            font-size: 14.875px;
+            text-align: left;
+            white-space: pre;
+          "
+          ><br
+        /></span>
+      </div>
+      <div class="separator" style="clear: both; text-align: center">
+        <span
+          style="
+            background-color: #1d1f21;
+            color: #c5c8c6;
+            font-family: , 'menlo', 'monaco', 'consolas', 'liberation mono',
+              'courier new', monospace;
+            font-size: 14.875px;
+            text-align: left;
+            white-space: pre;
+          "
+          >deb-src http://http.kali.org/kali kali-rolling main non-free
+          contrib</span
+        >
+      </div>
+      <div class="separator" style="clear: both; text-align: left">
+        9. After adding the above lines to the file, press Ctrl + O and Ctrl + X
+        to save and close the file respectively.
+      </div>
+      <div class="separator" style="clear: both; text-align: left">
+        10. Write command: <b>sudo apt-get update</b>
+      </div>
+      <div class="separator" style="clear: both; text-align: left">
+        11. After the update has completed, write command:
+        <b>sudo apt-get install gdm3 </b>, type Y(Yes) on the prompt. The
+        installation might take some time.
+      </div>
+      <div class="separator" style="clear: both; text-align: left">
+        12. During installation, a wizard will open in which you have to change
+        the default display manager to <b>gdm3&nbsp;</b>&nbsp;and hit
+        <b>Enter!</b>
+      </div>
+      <div class="separator" style="clear: both; text-align: center">
+        <a
+          href="https://1.bp.blogspot.com/-Bmpv1VEgXqo/Xk_a-e8xM1I/AAAAAAAAZLY/Dp5r37DCTswQf675vrwjfoySFGxv3cnuwCLcBGAsYHQ/s1600/3.PNG"
+          style="margin-left: 1em; margin-right: 1em"
+          ><img
+            border="0"
+            data-original-height="409"
+            data-original-width="987"
+            height="264"
+            src="https://1.bp.blogspot.com/-Bmpv1VEgXqo/Xk_a-e8xM1I/AAAAAAAAZLY/Dp5r37DCTswQf675vrwjfoySFGxv3cnuwCLcBGAsYHQ/s640/3.PNG"
+            width="640"
+        /></a>
+      </div>
+      <div class="separator" style="clear: both; text-align: center"></div>
+      <div class="separator" style="clear: both; text-align: left">
+        13. Write command: <b>reboot</b>
+      </div>
+      <div class="separator" style="clear: both; text-align: left">
+        <b><br /></b>
+      </div>
+      <div class="separator" style="clear: both; text-align: left">
+        Now you will be able to see the GUI.
+      </div>
+      <div class="separator" style="clear: both; text-align: left"><br /></div>
+      <div class="separator" style="clear: both; text-align: left"><br /></div>
+    </div>
+  </div>
+</div>
