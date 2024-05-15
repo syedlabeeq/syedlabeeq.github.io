@@ -1,3 +1,8 @@
+---
+layout: post
+title: Documentation
+---
+
 ## Installation
 
 * Fork the repository
