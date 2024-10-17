@@ -2,5 +2,5 @@
 layout: default
 ---
 
-## [First Blog](./test-blog.html).
+## [First Blog](./test-blog.html)
 
