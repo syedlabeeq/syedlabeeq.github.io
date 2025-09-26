@@ -1,0 +1,112 @@
+
+@font-face {
+  font-family: Bookerly;
+  src: url(../fonts/Bookerly.ttf);
+}
+
+/*---------------------------------------
+  CUSTOM PROPERTIES ( VARIABLES )             
+-----------------------------------------*/
+:root {
+  --white-color:                  #ffffff;
+  --primary-color:                #1d1d1d;
+  --secondary-color:              #80d0c7;
+  --section-bg-color:             #f0f8ff;
+  --custom-btn-bg-color:          #80d0c7;
+  --custom-btn-bg-hover-color:    #13547a;
+  --dark-color:                   #000000;
+  --p-color:                      #e3e3e3;
+  --border-color:                 #7fffd4;
+  --link-hover-color:             #13547a;
+  --post-card-color:              #343434;
+
+  --body-font-family:             Bookerly, 'Open Sans', sans-serif;
+  --title-font-family:            'Montserrat', sans-serif;
+
+  --h1-font-size:                 58px;
+  --h2-font-size:                 46px;
+  --h3-font-size:                 32px;
+  --h4-font-size:                 28px;
+  --h5-font-size:                 24px;
+  --h6-font-size:                 22px;
+  --p-font-size:                  20px;
+  --menu-font-size:               14px;
+  --btn-font-size:                18px;
+  --copyright-font-size:          16px;
+  --text-font-size:               15px;
+
+  --border-radius-large:          100px;
+  --border-radius-medium:         20px;
+  --border-radius-small:          10px;
+
+  --font-weight-normal:           400;
+  --font-weight-medium:           500;
+  --font-weight-semibold:         600;
+  --font-weight-bold:             700;
+}
+
+@font-face {
+  font-family: core-sans;
+  src: url(../fonts/Core-Sans.otf) format("opentype");
+}
+
+body {
+  background-color: var(--primary-color);
+  margin-top: 50px;
+}
+
+.hello {
+    font-family: core-sans;
+    font-weight: var(--font-weight-bold);
+    font-size: var(--h1-font-size);
+    line-height: 100%;
+    color: var(--white-color);
+}
+
+.intro {
+    font-family: var(--body-font-family);
+    letter-spacing: 2px;
+    font-size: var(--text-font-size) + 1px;
+    color: var(--p-color);
+    line-height: 250%;
+    text-align: justify;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    hyphens: auto;
+}
+
+/*---------------------------------------
+  POST CARD STYLES             
+-----------------------------------------*/
+
+.post-card {
+    background-color: var(--post-card-color);
+}
+
+.post-card .card-body .card-title {
+    font-weight: var(--font-weight-bold);
+    color: var(--white-color);
+}
+
+.post-card .card-body .card-text {
+    font-weight: var(--font-weight-semibold);
+    color: var(--p-color);
+}
+
+.post-card:hover {
+    cursor: pointer;
+    box-shadow: #f0f8ff 0px 0px 5px 0px;
+    transition: all 0.2s ease-in-out;
+    transform: translateY(-5px);   
+}
+
+.neumorphic-menu {
+  background-color: #252525;
+  box-shadow: 10px 10px 12px 0 rgba(0, 0, 0, 0.3);
+  border-radius: 0 0 10px 10px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 3rem;
+  list-style-type: none;
+}
