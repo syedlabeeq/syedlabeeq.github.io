@@ -1,0 +1,40 @@
+[
+  {
+    "id": "4",
+    "slug": "intel-cet-part-1",
+    "title": "Control-Flow Enforcement Technology — Part 1",
+    "excerpt": "Intel CET brings hardware-enforced control-flow integrity to counter modern code-reuse attacks. This primer traces the evolution from DEP and ASLR to CET's shadow stack and indirect branch tracking.",
+    "date": "2026-08-21",
+    "readingTime": 9,
+    "tags": ["Security Research", "Exploit Mitigations"],
+    "ogImage": "/images/posts/intel-cet-part-1/1-1.png"
+  },
+  {
+    "id": "3",
+    "slug": "markdown-reference",
+    "title": "Markdown reference — everything the renderer supports",
+    "excerpt": "Headings, code fences with filenames, diffs, tables, figures with automatic numbering, mermaid diagrams, and the table of contents that builds itself. One page, every feature.",
+    "date": "2026-02-03",
+    "readingTime": 6,
+    "tags": ["Meta", "Reference"],
+    "ogImage": "/images/posts/markdown-reference/figure-demo.svg"
+  },
+  {
+    "id": "2",
+    "slug": "styling-this-blog",
+    "title": "Styling this blog — tokens, type, and the two themes",
+    "excerpt": "Every color, size and easing curve in this template resolves through a CSS custom property. Change the tokens and the whole site follows, in both light and dark.",
+    "date": "2026-01-20",
+    "readingTime": 7,
+    "tags": ["Meta", "Design", "CSS"]
+  },
+  {
+    "id": "1",
+    "slug": "hello-world",
+    "title": "Hello, world — and how this blog works",
+    "excerpt": "The one-file configuration, where posts live, and what happens between `npm run dev` and a deployed site. Start here, delete it when you've read it.",
+    "date": "2026-01-12",
+    "readingTime": 4,
+    "tags": ["Meta", "Getting Started"]
+  }
+]

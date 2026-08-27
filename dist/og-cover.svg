@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Site cover">
+  <rect width="1200" height="630" fill="#141518"/>
+  <circle cx="96" cy="96" r="14" fill="#7aa2f7"/>
+  <text x="96" y="330" font-family="'Space Grotesk', ui-sans-serif, system-ui, sans-serif" font-size="84" font-weight="700" fill="#e8eaed">
+    your<tspan fill="#7aa2f7">-</tspan>handle
+  </text>
+  <text x="96" y="400" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="30" fill="#a9b4bb">
+    Long-form notes on the things I build and take apart.
+  </text>
+</svg>

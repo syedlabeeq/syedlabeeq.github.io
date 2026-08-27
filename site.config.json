@@ -1,0 +1,138 @@
+{
+  "url": "https://syedlabeeq.github.io",
+  "basePath": "/",
+  "title": "Syed Labeeq Sajid Bukhari | Binary Thoughts",
+  "shortName": "Binary Thoughts",
+  "description": "Lead Security Research & Automation, specializing in vulnerability research, exploit development, and scalable detection systems built from real-world offensive findings.",
+  "language": "en",
+  "author": {
+    "name": "Syed Labeeq Sajid Bukhari",
+    "handle": "syedlabeeq",
+    "role": "Senior Vulnerability Researcher",
+    "email": "syedlabeeq@gmail.com",
+    "avatar": "/images/photo.jpg"
+  },
+  "wordmark": {
+    "before": "Binary",
+    "accent": "Thoughts",
+    "after": ""
+  },
+  "seo": {
+    "ogImage": "/og-cover.svg",
+    "twitterCard": "summary_large_image"
+  },
+  "repo": {
+    "url": "https://github.com/syedlabeeq/syedlabeeq.github.io",
+    "branch": "main",
+    "postsDir": "public/posts"
+  },
+  "nav": [
+    {
+      "label": "Home",
+      "to": "/",
+      "end": true
+    },
+    {
+      "label": "Blog",
+      "to": "/blog",
+      "end": false
+    },
+    {
+      "label": "Contributions",
+      "to": "/contributions",
+      "end": false
+    },
+    {
+      "label": "About",
+      "to": "/about",
+      "end": false
+    }
+  ],
+  "social": [
+    {
+      "type": "email",
+      "label": "Email",
+      "href": "mailto:syedlabeeq@gmail.com",
+      "value": "syedlabeeq@gmail.com"
+    },
+    {
+      "type": "phone",
+      "label": "Phone",
+      "href": "tel:+923214221505",
+      "value": "+92 321 4221505"
+    },
+    {
+      "type": "github",
+      "label": "GitHub",
+      "href": "https://github.com/syedlabeeq",
+      "value": "github.com/syedlabeeq"
+    },
+    {
+      "type": "rss",
+      "label": "RSS feed",
+      "href": "/rss.xml",
+      "value": "rss.xml"
+    }
+  ],
+  "features": {
+    "contributions": true,
+    "rss": true,
+    "search": true,
+    "editOnGitHub": true,
+    "shareOnX": true,
+    "tableOfContents": true
+  },
+  "home": {
+    "eyebrow": "Security research & automation",
+    "lede": "I build exploit proofs, automate the detections that stop them, and turn offensive findings into production-hardened defenses.",
+    "latestHeading": "Latest research notes",
+    "latestCount": 5,
+    "contributionsHeading": "Recent community work",
+    "contributionsCount": 4
+  },
+  "blog": {
+    "heading": "Blog",
+    "description": "Everything I've written, newest first. Filter by tag or search the full text of every post."
+  },
+  "about": {
+    "heading": "Syed Labeeq Sajid Bukhari",
+    "tagline": "Senior Vulnerability Researcher at Ebryx LLC.",
+    "bio": [
+      "I am a vulnerability researcher focused on turning offensive tradecraft into defenses. Over the past five years I have moved from malware analysis into building automation that scales threat detection across enterprise level.",
+      "At Ebryx I lead security research and automation initiatives, guiding cross-functional teams that cover red-team assessments to implementing mitigation. My work spans exploit development, reverse engineering, custom tooling, and integrating OSINT-driven exposure analysis into production pipelines.",
+      "Binary Thoughts is where I document the research that shapes our defenses: from kernel-level PoCs and adversary emulation to automation patterns that keep detections sharp long after disclosure day."
+    ],
+    "focusHeading": "Current focus",
+    "focus": [
+      {
+        "term": "Security automation systems",
+        "definition": "Designing pipelines that convert exploit research into automated detection and response across 10k+ endpoints."
+      },
+      {
+        "term": "Exploit and malware research",
+        "definition": "Developing PoCs, reverse engineering advanced campaigns, and stress-testing platform mitigations like CET and CFG."
+      },
+      {
+        "term": "Offensive-informed defense",
+        "definition": "Building adversary emulation scenarios that validate controls from Active Directory abuse paths to cloud misconfigurations."
+      }
+    ],
+    "elsewhereHeading": "Connect",
+    "colophon": [
+      "Built with React, Vite, and Tailwind.",
+      "Set in Space Grotesk, Inter, Newsreader, and JetBrains Mono.",
+      "No trackers, no analytics, no cookies."
+    ]
+  },
+  "contributions": {
+    "githubUsername": "syedlabeeq",
+    "heading": "Contributions",
+    "description": "Pull requests, advisories, and upstream security research that shape public defenses. Generated at build time from the GitHub API.",
+    "minDate": "2020-01-01"
+  },
+  "footer": {
+    "tagline": "Hardware-aware security research and automation notes from the Binary Thoughts lab.",
+    "copyrightHolder": "Syed Labeeq Sajid Bukhari",
+    "copyrightNote": "All opinions are my own"
+  }
+}

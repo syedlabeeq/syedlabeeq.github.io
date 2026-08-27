@@ -1,0 +1,18 @@
+{
+  "_comment": "Manual input for scripts/fetch-contributions.mjs. `advisoryIds` are GHSA ids credited to you in the global GitHub Advisory DB; `items` are contributions the public API can't find (repo-only advisories, HackerOne reports, work under another handle); `excludeRepoPatterns` are case-insensitive regexes for repos to drop from the auto-fetched results.",
+  "advisoryIds": [],
+  "excludeRepoPatterns": ["hacktoberfest"],
+  "items": [
+    {
+      "id": "example:manual-1",
+      "type": "advisory",
+      "title": "Delete me — an example manual entry",
+      "summary": "Anything the GitHub API can't surface goes here. Remove this object once you have real entries; an empty `items` array is perfectly fine.",
+      "repo": "your-username/some-project",
+      "url": "https://github.com/your-username/some-project",
+      "date": "2026-01-01",
+      "state": "published",
+      "tags": ["Advisory", "Example"]
+    }
+  ]
+}
