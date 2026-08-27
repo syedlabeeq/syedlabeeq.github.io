@@ -23,7 +23,7 @@
   },
   "repo": {
     "url": "https://github.com/syedlabeeq/syedlabeeq.github.io",
-    "branch": "main",
+    "branch": "master",
     "postsDir": "public/posts"
   },
   "nav": [
