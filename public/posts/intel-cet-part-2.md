@@ -4,7 +4,7 @@ Before we get into the two mechanisms CET introduces, it is worth stepping back 
 
 The short answer is that software checks are just code, and code can be attacked. CET moves the enforcement somewhere attackers cannot reach.
 
-![Intel CET high-level overview](Images/intro.jpeg "Diagram of CPU highlighting Shadow Stack and IBT")
+![Intel CET high-level overview](Images/intro.jpeg)
 
 ---
 
@@ -20,7 +20,7 @@ An attacker with a write primitive can overwrite the check itself. Or corrupt th
 
 CET sidesteps this by moving enforcement into the CPU's execution logic. There is no check instruction to overwrite. The comparison between a return address and the shadow stack happens inside the hardware, not as something you can find in a disassembler. That is the fundamental shift.
 
-![Shadow stack and IBT inside processor pipeline](Images/2-1-A.jpeg "Hardware enforcement inside CPU")
+![Shadow stack and IBT inside processor pipeline](Images/2-1-A.jpeg)
 
 ### It Has to Be Fast Enough That People Actually Use It
 
@@ -34,7 +34,7 @@ Intel designed CET to be cheap by construction:
 
 Intel's own benchmarks put the overhead below one percent for most workloads. Some call-heavy microbenchmarks push up to around three percent. Those numbers are good enough that OS vendors and compilers actually enabled it, which is the real test.
 
-![Bar chart comparing software CFI and Intel CET overhead](Images/2-1-B.jpeg "Runtime overhead: Software CFI vs Intel CET")
+![Bar chart comparing software CFI and Intel CET overhead](Images/2-1-B.jpeg)
 
 ### It Cannot Break Existing Software
 
@@ -44,13 +44,13 @@ The solution was a clean NOP encoding. On a CPU that does not support CET, `endb
 
 Beyond that, the OS controls which processes get CET enforcement. A legacy binary that has never been recompiled can still run. It just does not get the protection. Separate configuration bits exist for user mode and kernel mode, so each can be tuned independently.
 
-![Split view of CET NOP on old CPUs vs active enforcement](Images/2-1-C.jpeg "Backward compatibility across CPU generations")
+![Split view of CET NOP on old CPUs vs active enforcement](Images/2-1-C.jpeg)
 
 ### It Is One Layer, Not the Whole Defense
 
 CET was never meant to replace DEP or ASLR. The design assumes those are already in place. DEP prevents injecting and running new code. ASLR makes it hard to predict where anything lives. CET addresses what happens after both of those are bypassed: the attacker has leaked an address and corrupted memory, and is now trying to reuse existing code. Each layer handles a different part of the attack, and the combination is stronger than any single piece.
 
-![Stacked shields labeled DEP, ASLR, CET](Images/2-1-D.jpeg "Layered defense with CET complementing DEP and ASLR")
+![Stacked shields labeled DEP, ASLR, CET](Images/2-1-D.jpeg)
 
 ---
 
@@ -77,7 +77,7 @@ Hijacked backward edge:
 
 The shadow stack fixes this by keeping a second copy of every return address in a region that normal instructions cannot write to. On `call`, the CPU pushes to both the regular stack and the shadow stack. On `ret`, it compares the two. If they disagree, the CPU raises a control protection fault and the process stops. The attacker can corrupt the normal stack all they like; the shadow stack is not reachable that way.
 
-![Normal and hijacked return flow comparison](Images/2-2-A.jpeg "Backward edge attacks vs shadow stack protection")
+![Normal and hijacked return flow comparison](Images/2-2-A.jpeg)
 
 ### Indirect Branches: The Forward Edge
 
@@ -95,7 +95,7 @@ Hijacked forward edge:
 
 IBT handles this with a simple state machine. After any indirect call or jump, the CPU goes into a wait state. The very next instruction executed must be `endbr64` (or `endbr32` in 32-bit mode). If it is not, the CPU faults. Since compilers only place `endbr` at the start of functions that are valid indirect branch targets, an attacker can no longer jump into the middle of a function to pick up a useful instruction sequence. The reachable set shrinks from arbitrary offsets across the binary down to function entry points.
 
-![Flowchart showing indirect call with corrupted pointer](Images/2-2-B.jpeg "Forward edge control-flow attack blocked by IBT")
+![Flowchart showing indirect call with corrupted pointer](Images/2-2-B.jpeg)
 
 ### Why You Need Both
 
@@ -107,7 +107,7 @@ IBT alone stops JOP and COP. But classic ROP chains built entirely from `ret`-en
 
 With both running, the attacker's options get very tight. Every return has to match the shadow stack. Every indirect branch has to land on an `endbr`. There is still one remaining gap, which Section 5.4 covers, but the attack surface is dramatically smaller.
 
-![Venn diagram of shadow stack and IBT coverage overlap](Images/2-2-C.jpeg "Combined coverage from shadow stack and IBT")
+![Venn diagram of shadow stack and IBT coverage overlap](Images/2-2-C.jpeg)
 
 ---
 
@@ -119,7 +119,7 @@ CET is two independent hardware extensions. You can enable either one without th
 
 The shadow stack is a second stack, maintained by the CPU, that holds only return addresses. It lives in its own protected memory region. No regular load or store instruction can write to it. A separate register, the Shadow Stack Pointer (SSP), tracks the top, independent of RSP.
 
-![Shadow stack region with SSP pointer schematic](Images/2-3-A.jpeg "Shadow stack layout and SSP pointer")
+![Shadow stack region with SSP pointer schematic](Images/2-3-A.jpeg)
 
 **Key properties**
 
@@ -141,7 +141,7 @@ Several new instructions expose shadow stack state to privileged software. The O
 * `SETSSBSY` marks a shadow stack token as busy to prevent reuse.
 * `CLRSSBSY` clears that marker.
 
-![Instruction summary for managing the shadow stack](Images/2-3-B.jpeg "Shadow stack management instructions")
+![Instruction summary for managing the shadow stack](Images/2-3-B.jpeg)
 
 Section 3 goes through each of these with concrete examples.
 
@@ -168,7 +168,7 @@ Compilers decide where to put `endbr`. In general, it goes at the start of:
 
 On CET hardware the instruction acts as a landing pad marker. On older hardware it is a NOP, so the binary is identical in both cases.
 
-![State machine for indirect branch tracking](Images/2-3-C.jpeg "IBT state machine enforcing endbr landing pads")
+![State machine for indirect branch tracking](Images/2-3-C.jpeg)
 
 Section 4 covers the tracker state machine and what happens when the fault fires.
 
@@ -196,7 +196,7 @@ A practical attacker now runs into at least one wall no matter what technique th
 
 The one remaining option is to redirect an indirect branch to a different function that legitimately has an `endbr`. That is still a real limitation and worth understanding, but the number of usable targets drops from thousands of arbitrary gadget offsets to the much smaller set of function entry points in the binary. In practice, building a reliable exploit chain from that set is considerably harder.
 
-![Shielded control flow with SHSTK and IBT checkpoints](Images/2-3-D.jpeg "Combined SHSTK and IBT enforcement on program flow")
+![Shielded control flow with SHSTK and IBT checkpoints](Images/2-3-D.jpeg)
 
 ---
 
