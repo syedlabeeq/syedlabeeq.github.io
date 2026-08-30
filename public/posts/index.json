@@ -4,9 +4,19 @@
     "slug": "intel-cet-part-1",
     "title": "Control-Flow Enforcement Technology — Part 1",
     "excerpt": "Intel CET brings hardware-enforced control-flow integrity to counter modern code-reuse attacks. This primer traces the evolution from DEP and ASLR to CET's shadow stack and indirect branch tracking.",
-    "date": "2026-08-21",
+    "date": "2026-05-20",
     "readingTime": 9,
-    "tags": ["Security Research", "Exploit Mitigations"],
+    "tags": ["Security Research", "Exploit Mitigations", "Intel", "CET"],
     "ogImage": "/images/posts/intel-cet-part-1/1-1.png"
+  },
+  {
+    "id": "2",
+    "slug": "intel-cet-part-2",
+    "title": "Control-Flow Enforcement Technology — Part 2",
+    "excerpt": "This article dives deep in the engineering tradeoffs that pushed CET into silicon, how Intel kept it fast and backward-compatible, and what the two protections look like when you put them to work.",
+    "date": "2026-07-06",
+    "readingTime": 10,
+    "tags": ["Security Research", "Exploit Mitigations", "Intel", "CET"],
+    "ogImage": "/images/posts/intel-cet-part-2/intro.jpeg"
   }
 ]
