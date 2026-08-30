@@ -4,7 +4,7 @@ Before we get into the two mechanisms CET introduces, it is worth stepping back 
 
 The short answer is that software checks are just code, and code can be attacked. CET moves the enforcement somewhere attackers cannot reach.
 
-![Intel CET high-level overview](//images/posts/intel-cet-part-2/posts/intel-cet-part-2/intro.jpeg)
+![Intel CET high-level overview](/images/posts/intel-cet-part-2/posts/intel-cet-part-2/intro.jpeg)
 
 ---
 
