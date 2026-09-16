@@ -51,7 +51,7 @@ If an attacker overwrites a capability using ordinary byte or integer stores, th
 
 ![CHERI threat model: spatial, temporal, and referential safety](/images/posts/cheri-part-1/1-1.jpeg)
 
-*CHERI threat model: spatial, temporal, and referential safety.*
+
 
 ---
 
@@ -80,7 +80,6 @@ Together the three close the loop. Provenance says every capability has a legiti
 
 ![Capability layout and the three invariants](/images/posts/cheri-part-1/1-2.jpeg)
 
-*Capability layout and the three invariants.*
 
 ### A Concrete Example: Accounts, Branches, and Ledgers
 
@@ -163,7 +162,6 @@ The program still has a bug—the overflow happened—but CHERI prevents that bu
 
 ![Capabilities protecting accounts, branches, and ledgers](/images/posts/cheri-part-1/1-4.jpeg)
 
-*Capabilities protecting accounts, branches, and ledgers.*
 
 ### Guarded Manipulation
 
@@ -203,7 +201,6 @@ There is also a coverage constraint: **not all memory must be tag-capable**. Pla
 
 ![Tagged memory: tag table, tag cache, and tag-clearing on data writes](/images/posts/cheri-part-1/1-3.jpeg)
 
-*Tagged memory: tag table, tag cache, and tag-clearing on data writes.*
 
 ---
 
