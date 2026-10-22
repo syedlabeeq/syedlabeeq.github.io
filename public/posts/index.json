@@ -2,7 +2,7 @@
   {
     "id": "2",
     "slug": "usb-storage-sierra-info-leak",
-    "title": "Leaking Kernel Pointers Through a USB Stick — KASLR Bypass via sierra_ms.c",
+    "title": "Leaking Kernel Pointers Through a USB; KASLR Leak via sierra_ms.c",
     "excerpt": "A missing length check in the Sierra Wireless USB storage driver let a malicious device serve a short control transfer and leave stale kmalloc-64 heap bytes in a world-readable sysfs attribute. This post walks through the bug, turns it into a full KASLR bypass with slab grooming, and shows the before/after of the fix that is now merged into every maintained stable kernel tree.",
     "date": "2026-10-08",
     "readingTime": 16,

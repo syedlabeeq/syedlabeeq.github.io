@@ -1,18 +1,18 @@
 ---
-id: 2
+id: 6
 slug: usb-storage-sierra-info-leak
-title: Leaking Kernel Pointers Through a USB; KASLR Leak via sierra_ms.c
+title: Leaking Kernel Pointers Through a USB Stick: KASLR Bypass via sierra_ms.c
 excerpt: A missing length check in the Sierra Wireless USB storage driver allowed a malicious device to return a short control transfer and leave stale kmalloc-64 bytes in a world-readable sysfs attribute. This post covers the bug, the KASLR bypass, slab grooming, and the fix now merged into maintained stable kernels.
 date: 2026-10-08
 readingTime: 16
 tags: ["Security Research", "Linux Kernel", "Exploitation"]
 ---
 
-Kernel Address Space Layout Randomization (KASLR) hides the kernel's code and data addresses, and it is one of the first barriers a privilege-escalation exploit has to clear. In practice, defeating it often comes down to finding one driver that exposes a kernel pointer to an unprivileged user.
+Kernel Address Space Layout Randomization (KASLR) hides the kernel's code and data addresses. It is one of the first barriers a privilege-escalation exploit has to clear. Often, bypassing it only needs one driver that exposes a kernel pointer to an unprivileged user.
 
-This post covers one such case in `drivers/usb/storage/sierra_ms.c`, the Sierra Wireless TRU-Install mode-switching helper in the USB storage subsystem. An 18-year-old missing length check allowed a malicious USB device to return a short control transfer and make the kernel print uninitialized slab memory through a world-readable sysfs file. With basic slab grooming, those stale bytes become a pointer into kernel `.rodata`, which is enough to recover the kernel text base.
+This post covers one such case in `drivers/usb/storage/sierra_ms.c`, the Sierra Wireless TRU-Install mode-switching helper in the USB storage subsystem. An 18-year-old missing length check allowed a malicious USB device to return a short control transfer and make the kernel print uninitialized slab memory through a world-readable sysfs file. With slab grooming, those stale bytes become a pointer into kernel `.rodata`, which is enough to recover the kernel text base.
 
-The bug was introduced in 2008, reported and patched in 2026, and the fix has been backported to maintained stable trees from 5.10 through 7.2. Everything below is reproducible in QEMU with a software-emulated malicious USB device; no physical hardware is required.
+The bug was introduced in 2008, reported and patched in 2026, and backported to maintained stable trees from 5.10 through 7.2. Everything below is reproducible in QEMU with a software-emulated malicious USB device. No physical hardware is required.
 
 ![End-to-end chain: short USB control transfer → stale kmalloc bytes → sysfs leak → KASLR bypass](/images/posts/usb-storage-sierra-info-leak/1-exploit-chain.png)
 
@@ -20,7 +20,7 @@ The bug was introduced in 2008, reported and patched in 2026, and the fix has be
 
 ## The Bug
 
-Sierra Wireless modems include a feature called TRU-Install. The device first appears as a small mass-storage "CD-ROM" containing drivers, and the host asks it — via a vendor-specific control request — whether it should switch into modem mode. The Linux-side logic lives in `drivers/usb/storage/sierra_ms.c`.
+Sierra Wireless modems include a feature called TRU-Install. The device first appears as a small mass-storage "CD-ROM" containing drivers, and the host asks it through a vendor-specific control request whether it should switch into modem mode. The Linux-side logic lives in `drivers/usb/storage/sierra_ms.c`.
 
 The query fills this fixed-size structure:
 
@@ -57,7 +57,7 @@ static int sierra_get_swoc_info(struct usb_device *udev,
 }
 ```
 
-The driver requests exactly `sizeof(struct swoc_info)`, which is 60 bytes. `usb_control_msg()` returns the number of bytes actually transferred on success, or a negative errno on failure. The important detail: **a short IN transfer is not an error**. If the device returns 9 bytes, `usb_control_msg()` returns 9. The remaining 51 bytes in the caller's buffer are left untouched.
+The driver requests exactly `sizeof(struct swoc_info)`, which is 60 bytes. `usb_control_msg()` returns the number of bytes actually transferred on success, or a negative errno on failure. The important detail is that **a short IN transfer is not an error**. If the device returns 9 bytes, `usb_control_msg()` returns 9. The remaining 51 bytes in the caller's buffer are left untouched.
 
 ![usb_control_msg returns the actual transfer length; a short IN transfer is not automatically an error](/images/posts/usb-storage-sierra-info-leak/2-short-transfer-contract.png)
 
@@ -70,13 +70,13 @@ if (result < 0) {
 }
 ```
 
-A return value of 9, 1, or even 0 is treated as success. The bug is simply that the returned length is never compared with the expected structure size. This pattern — request N bytes, then check only `< 0` — appears in several USB drivers and has been fixed elsewhere as a class of bugs.
+A return value of 9, 1, or even 0 is treated as success. The bug is that the returned length is never compared with the expected structure size. This pattern, requesting N bytes and checking only `< 0`, appears in several USB drivers and has been fixed elsewhere as a bug class.
 
 ### Where the Stale Bytes Surface
 
 A missing length check only matters if the unwritten bytes become visible to an attacker. Here, they do.
 
-When a device advertises a "full Linux package" via `containsFullLinuxPackage()`, `sierra_ms_init()` creates a sysfs attribute named `truinst` with mode **0444 — world-readable**:
+When a device advertises a "full Linux package" through `containsFullLinuxPackage()`, `sierra_ms_init()` creates a sysfs attribute named `truinst` with mode **0444**, making it world-readable:
 
 ```c
 static DEVICE_ATTR_RO(truinst);
@@ -109,11 +109,11 @@ static ssize_t truinst_show(struct device *dev, struct device_attribute *attr,
 
 ![Every cat truinst allocates a fresh non-zeroed kmalloc-64 object and prints selected fields](/images/posts/usb-storage-sierra-info-leak/4-sysfs-read-path.png)
 
-So an unprivileged read of `cat /sys/bus/usb/devices/.../truinst` does this:
+An unprivileged read of `cat /sys/bus/usb/devices/.../truinst` does this:
 
 1. allocates 60 bytes from `kmalloc-64`,
 2. asks the device for 60 bytes,
-3. prints bytes 0 and 9–12 from the buffer.
+3. prints bytes 0 and 9 to 12 from the buffer.
 
 If the device replies with only 9 bytes, `LinuxSKU` and `LinuxVer` come from memory the device never wrote. If it replies with a zero-length data stage, even `rev` is stale.
 
@@ -136,20 +136,20 @@ offset   0    1 .... 8    9-10      11-12     13 ......... 59
 
 ## Why a Short Transfer Leaks Real Kernel Memory
 
-The key question is what was in that buffer before the USB transfer. Two kernel behaviors make the answer useful:
+The useful part is what was in that buffer before the USB transfer. Two kernel behaviors make the stale bytes interesting:
 
 - **`kmalloc()` does not zero memory by default.** Unless the kernel is built with `CONFIG_INIT_ON_ALLOC_DEFAULT_ON=y`, a new allocation contains data left by the previous user of that slab slot.
 - **SLUB per-CPU freelists are LIFO.** The most recently freed object of a given size on the current CPU is usually the next object returned for that size.
 
-`sizeof(struct swoc_info)` is 60 bytes, which goes into the busy **kmalloc-64** cache. That gives a useful primitive:
+`sizeof(struct swoc_info)` is 60 bytes, which lands in the busy **kmalloc-64** cache. That gives a useful primitive:
 
-> Free a chosen 64-byte object on the local CPU, then read `truinst`. The driver's buffer can reuse that freed object, and the show callback prints bytes 9–12 of it.
+> Free a chosen 64-byte object on the local CPU, then read `truinst`. The driver's buffer can reuse that freed object, and the show callback prints bytes 9 to 12 of it.
 
 ![SLUB per-CPU freelists are LIFO: the recently freed donor object becomes the next kmalloc-64 allocation](/images/posts/usb-storage-sierra-info-leak/5-kmalloc64-lifo-grooming.png)
 
-The device controls whether the leak happens by returning a short transfer. Slab grooming controls what stale object is reused. The result is a controlled disclosure of four bytes per read — limited, but enough.
+The device controls whether the leak happens by returning a short transfer. Slab grooming controls what stale object is reused. The result is a controlled disclosure of four bytes per read. Limited, but enough.
 
-One note on threat model: exploitation requires a malicious or emulated USB device. Kernel maintainers generally consider hostile physical USB devices outside the kernel security threat model, so this was handled publicly as a normal bug fix rather than under embargo, and no CVE is expected. Still, it is a real information leak and a useful example of how small driver bugs can break KASLR.
+One note on threat model: exploitation requires a malicious or emulated USB device. Kernel maintainers generally consider hostile physical USB devices outside the kernel security threat model, so this was handled publicly as a normal bug fix rather than under embargo, and no CVE is expected. It is still a real information leak and a useful example of how small driver bugs can break KASLR.
 
 ---
 
@@ -186,7 +186,7 @@ struct ns_common {
 };
 ```
 
-`ns.ops`, at offset 8, points to `cgroupns_operations` in kernel `.rodata`. The driver prints bytes 9–12 of the buffer, which correspond to bytes 1–4 of that pointer.
+`ns.ops`, at offset 8, points to `cgroupns_operations` in kernel `.rodata`. The driver prints bytes 9 to 12 of the buffer, which correspond to bytes 1 to 4 of that pointer.
 
 ```
 leaked pointer to cgroupns_operations (.rodata), little-endian:
@@ -199,7 +199,7 @@ byte:    0      1   2   3   4      5   6   7
          └ known: symbol's low byte (0x80), because the KASLR slide is 2 MiB-aligned
 ```
 
-The read gives the middle four bytes. Byte 0 is known because the KASLR slide is 2 MiB-aligned, and bytes 5–7 are `0xff` for kernel addresses. That reconstructs the full pointer from one read:
+The read gives the middle four bytes. Byte 0 is known because the KASLR slide is 2 MiB-aligned, and bytes 5 to 7 are `0xff` for kernel addresses. That reconstructs the full pointer from one read:
 
 ```
 kbase = leaked_ptr - (&cgroupns_operations - _text)
@@ -214,7 +214,7 @@ Reliability comes from making the driver's `kmalloc(60)` reuse a recently freed 
 
 1. **Spray**: fork around 300 child processes. Each calls `unshare(CLONE_NEWCGROUP)` and then pauses, keeping its `cgroup_namespace` alive.
 2. **Burst-free**: kill the children. Their objects are freed in a burst onto the per-CPU `kmalloc-64` freelist.
-3. **Trigger**: read `truinst` immediately. The driver's allocation reuses a recently freed donor and prints bytes 9–12 of the stale `ops` pointer.
+3. **Trigger**: read `truinst` immediately. The driver's allocation reuses a recently freed donor and prints bytes 9 to 12 of the stale `ops` pointer.
 
 If a read does not match the expected kernel-pointer signature, repeat the batch. In practice, the signature check succeeds consistently.
 
@@ -233,14 +233,14 @@ The gadget presents VID:PID `1199:0fff` for Sierra Wireless TRU-Install with a m
 - **Enumeration**: answer GetSwocInfo with a full 60-byte `struct swoc_info` and `LinuxSKU = 0x2100`. The driver decides the device has a Linux package, stays in storage mode, and creates the world-readable `truinst` attribute.
 - **Attack**: after that, answer each GetSwocInfo request with only **9 of 60 bytes**. The driver accepts the short response and prints stale heap data.
 
-The VM `init` script runs the full chain automatically: enumeration, a first-stage `msg_msg` spray to show donor control, the `cgroup_namespace` KASLR bypass, and a comparison against `/proc/kallsyms`.
+The VM `init` script runs the chain automatically: enumeration, a first-stage `msg_msg` spray to show donor control, the `cgroup_namespace` KASLR bypass, and a comparison against `/proc/kallsyms`.
 
 ### Results
 
 On the **vulnerable** kernel with KASLR enabled (full log: `poc/evidence/boot-vuln-recheck.log`):
 
 ```
-[leak ] REV=00 SKU=0001 VER=0000        (x10 — stale tail bytes)
+[leak ] REV=00 SKU=0001 VER=0000        (x10, stale tail bytes)
 [kaslr] cgroup_ns-signature reads: 20/20
 [kaslr] /proc/kallsyms _text : 0xffffffff9e200000  == LEAK MATCHES ==
 ```
@@ -284,11 +284,11 @@ The fix is small: validate the transfer length and accept only a complete struct
  	swocInfo->LinuxSKU = le16_to_cpu(swocInfo->LinuxSKU);
 ```
 
-Two details from the upstream discussion are worth noting.
+Two details came up during review.
 
 First, why check the length instead of switching to `kzalloc()`? Zeroing the buffer would stop the leak, but it would also let the driver continue using fields the device never sent. Rejecting a short response makes the failure explicit, and `sierra_ms_init()` already retries failed queries.
 
-Second, could this break real devices? The command requests a fixed-size structure, and the old driver already read fields at bytes 9–12 unconditionally. A device returning less than that was already causing the driver to make decisions based on garbage. The new check only turns that silent failure into a visible one.
+Second, could this break real devices? The command requests a fixed-size structure, and the old driver already read fields at bytes 9 to 12 unconditionally. A device returning less than that was already causing the driver to make decisions based on garbage. The new check turns that silent failure into a visible one.
 
 ### The Systemic Lesson
 
@@ -307,21 +307,21 @@ Systems running current point releases of those branches include the fix. The vu
 
 ## Where This Leaves Us
 
-KASLR did not fail on its own; a length check failed in an old USB storage driver. The exploit chain is short: a short control transfer, a non-zeroing allocator, a world-readable sysfs file, and predictable slab reuse. None of those pieces is unusual, which is exactly why this class of bug keeps showing up in driver code.
+KASLR did not fail on its own. A length check failed in an old USB storage driver. The exploit chain is short: a short control transfer, a non-zeroing allocator, a world-readable sysfs file, and predictable slab reuse. None of those pieces is unusual, which is why this class of bug keeps showing up in driver code.
 
-For defenders, the action items are clear: enable `init_on_alloc`, use length-enforcing USB helpers, and audit code that checks only `< 0` after requesting a fixed-size transfer. For researchers, the PoC under `poc/` provides a hardware-free setup for testing malicious USB-device behavior against host drivers using raw_gadget and dummy_hcd.
+For defenders, the action items are practical: enable `init_on_alloc`, use length-enforcing USB helpers, and audit code that checks only `< 0` after requesting a fixed-size transfer. For researchers, the PoC under `poc/` provides a hardware-free setup for testing malicious USB-device behavior against host drivers using raw_gadget and dummy_hcd.
 
 ---
 
 ## References
 
 1. **sierra_ms.c (vulnerable source, v6.12.108)**. `drivers/usb/storage/sierra_ms.c`, Linux kernel source. <https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/drivers/usb/storage/sierra_ms.c?h=v6.12.108>
-2. **Bukhari, Syed Labeeq Sajid** "usb: storage: sierra_ms: reject short SWoC info transfers" (the fix patch). linux-usb mailing list. <https://lore.kernel.org/linux-usb/>
-3. **Loy, D. (Sierra Wireless).** Commit `32fe5e393455` — "USB Storage Sierra: TRU-Install feature update" (2008, the `Fixes:` target). <https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?id=32fe5e393455>
-4. **Kroah-Hartman, G.** "usb: misc: fix uninitialized-heap bugs" — the kzalloc()-based precedent for this bug class. <https://lore.kernel.org/r/20260819-usb_misc_random-v1-1-43a0dcee3a32@kroah.com>
+2. **Bukhari, S. L. S.** "usb: storage: sierra_ms: reject short SWoC info transfers" (the fix patch). linux-usb mailing list. <https://lore.kernel.org/linux-usb/>
+3. **Loy, D. (Sierra Wireless).** Commit `32fe5e393455`: "USB Storage Sierra: TRU-Install feature update" (2008, the `Fixes:` target). <https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?id=32fe5e393455>
+4. **Kroah-Hartman, G.** "usb: misc: fix uninitialized-heap bugs", the kzalloc()-based precedent for this bug class. <https://lore.kernel.org/r/20260819-usb_misc_random-v1-1-43a0dcee3a32@kroah.com>
 5. **Andrey Konovalov / xairy.** "raw_gadget: a Linux kernel module for emulating USB devices." <https://github.com/xairy/raw-gadget>
 6. **Linux kernel documentation.** "USB Raw Gadget" (USB gadget fuzzing interface). <https://www.kernel.org/doc/html/latest/usb/raw-gadget.html>
 7. **Linux kernel documentation.** "init_on_alloc / init_on_free" (page and slab initialization hardening). <https://www.kernel.org/doc/html/latest/core-api/memory-allocation.html>
-8. **Konovalov, A.** "Exploiting the Linux kernel via USB" — background on the malicious-USB-device attack surface and gadget-based fuzzing. <https://github.com/xairy/raw-gadget>
-9. **Linux kernel source.** `usb_control_msg_recv()` — the length-enforcing control transfer helper, `drivers/usb/core/message.c`. <https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/drivers/usb/core/message.c>
+8. **Konovalov, A.** "Exploiting the Linux kernel via USB", background on the malicious-USB-device attack surface and gadget-based fuzzing. <https://github.com/xairy/raw-gadget>
+9. **Linux kernel source.** `usb_control_msg_recv()`, the length-enforcing control transfer helper, `drivers/usb/core/message.c`. <https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/drivers/usb/core/message.c>
 10. **PaX / grsecurity.** "KASLR: An Exercise in Cargo Cult Security" and related design notes on kernel ASLR. <https://pax.grsecurity.net/>
